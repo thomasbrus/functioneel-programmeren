@@ -1,4 +1,4 @@
-functioneel-programmeren
+Functioneel Programmeren
 ========================
 
 Uitwerkingen practicumopgaven Functioneel Programmeren
