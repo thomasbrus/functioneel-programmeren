@@ -5,8 +5,8 @@ isIncreasing (x:[]) = True
 isIncreasing (x:xs) = x < (head xs) && isIncreasing xs
 
 average :: [Number] -> Number
-average l = (sum l) / (length l)
+average xs = (sum xs) / (length xs)
 
 isWeaklyIncreasing :: [Number] -> Bool
 isWeaklyIncreasing (x:[]) = True
-isWeaklyIncreasing l = average (init l) < (last l) && isWeaklyIncreasing (init l)
+isWeaklyIncreasing xs = average (init xs) < (last xs) && isWeaklyIncreasing (init xs)
