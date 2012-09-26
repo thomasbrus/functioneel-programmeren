@@ -43,3 +43,12 @@ exampleTree1d = Node1d [(Leaf1d (1, 2)), (Leaf1d (3, 4)), (Leaf1d (5, 6))]
 
 --main = showTree (preProcess1d exampleTree1d)
 
+extendedExampleTree = Node1c 4
+  (Node1c 1
+    (Node1c 0 Leaf1c Leaf1c)
+    (Node1c 2 Leaf1c Leaf1c)
+  )
+  (Node1c 5
+    (Node1c 3 Leaf1c Leaf1c)
+    (Node1c 8 Leaf1c Leaf1c)
+  )

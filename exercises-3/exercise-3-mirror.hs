@@ -4,7 +4,7 @@ import PreProcessor
 
 mirrorTree :: Tree1a -> Tree1a
 mirrorTree (Leaf1a n) = Leaf1a n
-mirrorTree (Node1a n t1 t2) = Node1a n t2 t1
+mirrorTree (Node1a n t1 t2) = Node1a n (mirrorTree t2) (mirrorTree t1)
 
 --main = showTreeList
 --  [ (preProcess1a exampleTree1a)
