@@ -13,9 +13,7 @@ primesSmallerThanN :: Number -> [Number]
 primesSmallerThanN n = (takeWhile (<=n) sieve)
 
 divisors :: Number -> [Number]
-divisors m = 1 : filter ((==0) . rem m) [2 .. m `div` 2]
-
-devisors m = [ x | x <- [1..m], x `mod` m == 0]
+divisors m = [ x | x <- [1..m], m `mod` x == 0]
 
 isPrime2 :: Number -> Bool
-isPrime2 m = [1] == (divisors m)
+isPrime2 m = [1, m] == (divisors m)

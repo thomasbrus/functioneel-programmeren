@@ -10,12 +10,12 @@ import FPPrac
 pyth :: Number -> [(Number, Number, Number)]
 pyth x = [(a, b, c) | a <- [1..x], b <- [(a+1)..x], c <- [(b+1)..x], (a ^ 2) + (b ^ 2) == (c ^ 2)]
 
-pyth2 = zeef2 . pyth
- where
-   zeef2 ((a,b,c):xs) = (a,b,c) : zeef (filter (\(x,y,z) -> 
-      (a `mod` x) /= 0 &&
-      (b `mod` y) /= 0
-    )  xs)
+--pyth2 = zeef2 . pyth
+-- where
+--   zeef2 ((a,b,c):xs) = (a,b,c) : zeef (filter (\(x,y,z) -> 
+--      (a `mod` x) /= 0 &&
+--      (b `mod` y) /= 0
+--    )  xs)
 
 -- pyth' :: Number -> [(Number, Number, Number)]
 -- pyth' x = [(a, b, c) | (a, b, c) <- (pyth x),
