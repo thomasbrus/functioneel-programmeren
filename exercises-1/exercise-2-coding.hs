@@ -1,20 +1,9 @@
 import Data.Char
-import Prelude (Int)
+import FPPrac
 
-codeer :: Int -> Char -> Char
-codeer n c  | (c >= 'a' && c <= 'w') ||
-              (c >= 'A' && c <= 'W')     = chr (ord c + n)
-            | (c >= 'x' && c >= 'z') ||
-              (c >= 'X' && c >= 'Z')     = chr (ord c + n - 26)
-            | otherwise                  = c
+import Data.Int
 
-
-{-|
-  *Main> map codeer "hallo"
-  "kdoor"
-  *Main> map codeer "Morgenavond, 8 uur in Scheveningen"
-  "Prujhqdyrqg, 8 xxu lq Vfkhyhqlqjhq"
-
-  *Main> map (codeer 1) "hallo"
-  "ibmmp"
--}
+shiftCharacter :: Int -> Char -> Char
+shiftCharacter n c  | (c >= 'a' && c <= 'z')     = chr ((ord c - (ord 'a') + n) `mod` 26 + ord 'a')
+                    | (c >= 'A' && c <= 'Z')     = chr ((ord c - (ord 'A') + n) `mod` 26 + ord 'A')
+                    | otherwise                  = c
