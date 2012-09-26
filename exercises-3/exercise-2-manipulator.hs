@@ -1,5 +1,3 @@
--- $ ghc exercise-1-pre-processor.hs exercise-2-manipulator.hs && ./exercise-2-manipulator
-
 import RoseTree
 import FPPrac
 import PreProcessor
