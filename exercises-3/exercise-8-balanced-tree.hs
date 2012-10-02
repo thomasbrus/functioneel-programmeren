@@ -40,7 +40,7 @@ isBalanced t  = let lengths = branchLengths t in
                 (maximum lengths) - (minimum lengths) <= 1
 
 branchLengths :: Tree1c -> [Int]
-branchLengths Leaf1c = [0]
+branchLengths (Node1c _ Leaf1c Leaf1c) = [1]
 branchLengths (Node1c _ t1 t2)  = map (+ 1) (branchLengths t1) ++
                                   map (+ 1) (branchLengths t2)
 
@@ -55,7 +55,7 @@ branchLengths (Node1c _ t1 t2)  = map (+ 1) (branchLengths t1) ++
 
 --balanceTree :: Tree1c -> Tree1c
 --balanceTree Leaf1c = Leaf1c
---balanceTree (Node1c _ t1 t2) = 
+--balanceTree (Node1c n t1 t2) | b1 == b2   = Node1c n (balanceTree t1) (balanceTree t2)
 
 
 
