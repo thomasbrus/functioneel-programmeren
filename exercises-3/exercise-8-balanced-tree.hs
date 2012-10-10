@@ -71,8 +71,8 @@ balanceTree t = Node1c m (balanceTree t1) (balanceTree t2)
     t2  | null l2   = Leaf1c
         | otherwise = createTree' l2
 
---*Main> isBalanced $ balanceTree myTree
---True
---*Main> isBalanced myTree
---False
+-- *Main> isBalanced $ balanceTree myTree
+-- True
+-- *Main> isBalanced myTree
+-- False
 
