@@ -12,9 +12,12 @@ import RoseTree
 -- waarbij a het type van de elementen aan de interne knopen is,
 -- en b het type van de elementen aan de bladeren.
 
+data Unit = U
 data BinTree a b  = Node a (BinTree a b) (BinTree a b) |
-                    Unit (BinTree a b) (BinTree a b) | 
-                    Leaf b deriving (Show)
+                    Leaf b | 
+                    Unit 
+                    deriving (Show)
+
 
 -- b. Herdefinieer alle binaire boomtypes van serie 3 (1a t/m 1c)
 -- als specifieke instanties van het type BinTree a b.
@@ -27,7 +30,7 @@ data BinTree a b  = Node a (BinTree a b) (BinTree a b) |
 
 type Tree1a = BinTree Number Number
 type Tree1b = BinTree (Number, Number) (Number, Number)
-type Tree1c = BinTree Number Number
+type Tree1c = BinTree Number Unit
 
 -- c. Schrijf een generieke functie pp die alle bomen
 -- van type BinTree a b kan omzetten naar het type RoseTree
