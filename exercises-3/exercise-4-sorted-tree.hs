@@ -1,3 +1,5 @@
+module SortedTree where
+
 import RoseTree
 import FPPrac
 import PreProcessor
@@ -30,6 +32,7 @@ createTree' = foldr insertInTree Leaf1c
 --  [ (preProcess1c (createTree [10, 4, 5, 2, 6, 9]))
 --  , (preProcess1c (createTree' [10, 4, 5, 2, 6, 9])) ]
 
+createList :: Tree1c -> [Number]
 createList (Leaf1c)         = []
 createList (Node1c n t1 t2) = (createList t1) ++ [n] ++ (createList t2)
 

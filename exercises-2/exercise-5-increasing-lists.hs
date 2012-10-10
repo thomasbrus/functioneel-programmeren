@@ -1,3 +1,5 @@
+module ListUtils where
+
 import FPPrac
 
 isIncreasing :: [Number] -> Bool

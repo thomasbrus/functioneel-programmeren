@@ -23,7 +23,7 @@ exampleTree1b = Node1b (1, 2) (Leaf1b (2, 3)) (Leaf1b (3, 4))
 
 --main = showTree (preProcess1b exampleTree1b)
 
-data Tree1c = Leaf1c | Node1c Number Tree1c Tree1c
+data Tree1c = Leaf1c | Node1c Number Tree1c Tree1c deriving (Show)
 
 preProcess1c :: Tree1c -> RoseTree
 preProcess1c (Leaf1c)          = RoseNode "" []
