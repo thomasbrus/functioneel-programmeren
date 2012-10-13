@@ -36,7 +36,7 @@ exampleTree =
         Leaf
       )
     )
-    (Node Red 17
+    (Node Black 17
       (Node Black 15
         Leaf
         Leaf
@@ -96,3 +96,24 @@ colorFlip (Node Black n t1 t2@(Node Red na t2a t2b@(Node Red _ _ _)))
   = Node Red n t1 (Node Black na t2a t2b)
 colorFlip t = t
 
+-- Merk op dat er nu opnieuw een probleem kan ontstaan omdat de parent
+-- van N ook rood kan zijn.
+
+-- 4. Het derde geval is dat een zwarte root slechts één rood kind heeft,
+-- maar dat dit rode kind zelf ook weer een rood kind heeft. Schrijf
+-- een functie rebalance die de vier mogelijke situaties2 waarin dit
+-- optreedt zodanig bewerkt dat weer aan de RB-eigenschap is voldaan.
+-- Formuleer daartoe deze gevallen als patterns van uw type.
+
+-- (Zie voorbeeld (b) in rbtrees.pdf)
+
+rebalance :: RBTree -> RBTree
+rebalance (Node Black n t1@(Node Red na t1a@(Node Red _ _ _) t1b) t2@(Node Black _ _ _))
+  = Node Black na t1a (Node Red n t1b t2)
+rebalance (Node Black n t1@(Node Red na t1a t1b@(Node Red _ _ _)) t2@(Node Black _ _ _))
+  = Node Black na t1a (Node Red n t1b t2)
+rebalance (Node Black n t1@(Node Black _ _ _) t2@(Node Red na t2a@(Node Red _ _ _) t2b))
+  = Node Black na (Node Red n t2b t1) t2a
+rebalance (Node Black n t1@(Node Black _ _ _) t2@(Node Red na t2a t2b@(Node Red _ _ _)))
+  = Node Black na (Node Red n t2b t1) t2a
+rebalance t = t
