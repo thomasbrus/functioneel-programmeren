@@ -197,3 +197,7 @@ balancedInsert t a = rebalanceTree (insert t a)
 --    )
 --  )
 
+leftmostValue :: RBTree -> Number
+leftmostValue (Node _ n Leaf _) = n
+leftmostValue (Node _ _ t1 _) = leftmostValue t1
+
