@@ -133,4 +133,67 @@ rebalanceTree t = let (Node c n t1 t2) = rebalance t
 balancedInsert :: RBTree -> Number -> RBTree
 balancedInsert t a = rebalanceTree (insert t a)
 
+--Node Black 13
+--  (Node Red 8
+--    (Node Black 1
+--      Leaf
+--      (Node Red 6
+--        (Node Red 4
+--          Leaf
+--          Leaf
+--        ) 
+--        Leaf
+--      )
+--    )
+--    (Node Black 11
+--      Leaf
+--      Leaf
+--    )
+--  )
+--  (Node Red 17
+--    (Node Black 15
+--      Leaf
+--      Leaf)
+--    (Node Black 25
+--      (Node Red 22
+--        Leaf
+--        Leaf
+--      )
+--      (Node Red 27
+--        Leaf
+--        Leaf
+--      )
+--    )
+--  )
+
+--Node Black 13
+--  (Node Red 8
+--    (Node Black 1
+--      Leaf
+--      (Node Red 6
+--        Leaf
+--        Leaf
+--      )
+--    )
+--    (Node Black 11
+--      Leaf
+--      Leaf
+--    )
+--  )
+--  (Node Red 17
+--    (Node Black 15
+--      Leaf
+--      Leaf
+--    )
+--    (Node Black 25
+--      (Node Red 22
+--        Leaf
+--        Leaf
+--      )
+--      (Node Red 27
+--        Leaf
+--        Leaf
+--      )
+--    )
+--  )
 
