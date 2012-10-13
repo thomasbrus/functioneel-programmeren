@@ -22,9 +22,9 @@ insert (Node c n r1 r2) a
 
 exampleTree :: RBTree
 exampleTree =
-  (Node Red 13
+  (Node Black 13
     (Node Red 8
-      (Node Black 1
+      (Node Red 1
         Leaf
         (Node Red 6
           Leaf
@@ -70,3 +70,29 @@ rootToBlack :: RBTree -> RBTree
 rootToBlack (Node Red n r1@(Node Red _ _ _) r2) = Node Black n r1 r2
 rootToBlack (Node Red n r1 r2@(Node Red _ _ _)) = Node Black n r1 r2
 rootToBlack r = r
+
+-- 3. In het tweede geval hebben de twee subbomen A en B van een
+-- zwarte node N allebei een rode root. Bovendien heeft een van deze
+-- beide subbomen zelf een subboom met een rode root C. Schrijf een
+-- functie colourFlip die de zwarte root N rood maakt, en de rode
+-- roots A en B van de twee subbomen zwart. Node C blijft dus rood.
+
+--     N (Black)                N (Red)
+--      /   \                  /     \
+--     /     \                /       \
+--    A (Red) B (Red)        A (Black) B (Black)
+--   /         \            /           \
+--  *           C (Red)    *             C (Red)
+--
+
+colorFlip :: RBTree -> RBTree
+colorFlip (Node Black n r1@(Node Red na r1a@(Node Red _ _ _) r1b) r2)
+  = Node Red n (Node Black na r1a r1b) r2
+colorFlip (Node Black n r1@(Node Red na r1a r1b@(Node Red _ _ _)) r2)
+  = Node Red n (Node Black na r1a r1b) r2
+colorFlip (Node Black n r1 r2@(Node Red na r2a@(Node Red _ _ _) r2b))
+  = Node Red n r1 (Node Black na r2a r2b)
+colorFlip (Node Black n r1 r2@(Node Red na r2a r2b@(Node Red _ _ _)))
+  = Node Red n r1 (Node Black na r2a r2b)
+colorFlip r = r
+
