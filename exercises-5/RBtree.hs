@@ -14,11 +14,11 @@ data RBTree = Leaf | Node Color Number RBTree RBTree deriving (Show, Eq)
 
 insert :: RBTree -> Number -> RBTree
 insert (Leaf) a = Node Black a Leaf Leaf
-insert (Node c n r1 r2) a
+insert (Node c n t1 t2) a
   | a > n
-  = Node c n r1 (insert r2 a)
+  = Node c n t1 (insert t2 a)
   | otherwise
-  = Node c n (insert r1 a) r2
+  = Node c n (insert t1 a) t2
 
 exampleTree :: RBTree
 exampleTree =
@@ -67,9 +67,9 @@ exampleTree =
 -- root simpelweg weer zwart maakt.
 
 rootToBlack :: RBTree -> RBTree
-rootToBlack (Node Red n r1@(Node Red _ _ _) r2) = Node Black n r1 r2
-rootToBlack (Node Red n r1 r2@(Node Red _ _ _)) = Node Black n r1 r2
-rootToBlack r = r
+rootToBlack (Node Red n t1@(Node Red _ _ _) t2) = Node Black n t1 t2
+rootToBlack (Node Red n t1 t2@(Node Red _ _ _)) = Node Black n t1 t2
+rootToBlack t = t
 
 -- 3. In het tweede geval hebben de twee subbomen A en B van een
 -- zwarte node N allebei een rode root. Bovendien heeft een van deze
@@ -86,13 +86,13 @@ rootToBlack r = r
 --
 
 colorFlip :: RBTree -> RBTree
-colorFlip (Node Black n r1@(Node Red na r1a@(Node Red _ _ _) r1b) r2)
-  = Node Red n (Node Black na r1a r1b) r2
-colorFlip (Node Black n r1@(Node Red na r1a r1b@(Node Red _ _ _)) r2)
-  = Node Red n (Node Black na r1a r1b) r2
-colorFlip (Node Black n r1 r2@(Node Red na r2a@(Node Red _ _ _) r2b))
-  = Node Red n r1 (Node Black na r2a r2b)
-colorFlip (Node Black n r1 r2@(Node Red na r2a r2b@(Node Red _ _ _)))
-  = Node Red n r1 (Node Black na r2a r2b)
-colorFlip r = r
+colorFlip (Node Black n t1@(Node Red na t1a@(Node Red _ _ _) t1b) t2)
+  = Node Red n (Node Black na t1a t1b) t2
+colorFlip (Node Black n t1@(Node Red na t1a t1b@(Node Red _ _ _)) t2)
+  = Node Red n (Node Black na t1a t1b) t2
+colorFlip (Node Black n t1 t2@(Node Red na t2a@(Node Red _ _ _) t2b))
+  = Node Red n t1 (Node Black na t2a t2b)
+colorFlip (Node Black n t1 t2@(Node Red na t2a t2b@(Node Red _ _ _)))
+  = Node Red n t1 (Node Black na t2a t2b)
+colorFlip t = t
 
