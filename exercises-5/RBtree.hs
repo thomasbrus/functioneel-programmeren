@@ -3,8 +3,8 @@ module RBTree where
 import Data.Char
 import FPPrac.Prelude
 
-data Color = Red | Black deriving (Show)
-data RBTree = Leaf | Node Color Number RBTree RBTree deriving (Show)
+data Color = Red | Black deriving (Show, Eq)
+data RBTree = Leaf | Node Color Number RBTree RBTree deriving (Show, Eq)
 
 -- 1. Schrijf een functie insert die het eigenlijke inserten voor
 -- zijn rekening neemt zonder te letten op de rood-zwart eigenschap.
@@ -22,7 +22,7 @@ insert (Node c n r1 r2) a
 
 exampleTree :: RBTree
 exampleTree =
-  (Node Black 13
+  (Node Red 13
     (Node Red 8
       (Node Black 1
         Leaf
@@ -61,3 +61,12 @@ exampleTree =
 -- herstelproces kunnen de twee opeenvolgende rode nodes naar
 -- boven door de boom bewegen, maar er zal nooit meer dan een
 -- tweetal opeenvolgende nodes rood zijn.
+
+-- 2. Het simpelste geval is dat de bovenste van de twee rode nodes de
+-- root van de hele boom is. Schrijf een functie rootToBlack1 die de
+-- root simpelweg weer zwart maakt.
+
+rootToBlack :: RBTree -> RBTree
+rootToBlack (Node Red n r1@(Node Red _ _ _) r2) = Node Black n r1 r2
+rootToBlack (Node Red n r1 r2@(Node Red _ _ _)) = Node Black n r1 r2
+rootToBlack r = r
