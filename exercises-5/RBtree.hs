@@ -13,7 +13,7 @@ data RBTree = Leaf | Node Color Number RBTree RBTree deriving (Show, Eq)
 -- in de boom.
 
 insert :: RBTree -> Number -> RBTree
-insert (Leaf) a = Node Black a Leaf Leaf
+insert (Leaf) a = Node Red a Leaf Leaf
 insert (Node c n t1 t2) a
   | a > n
   = Node c n t1 (insert t2 a)
@@ -24,7 +24,7 @@ exampleTree :: RBTree
 exampleTree =
   (Node Black 13
     (Node Red 8
-      (Node Red 1
+      (Node Black 1
         Leaf
         (Node Red 6
           Leaf
@@ -36,7 +36,7 @@ exampleTree =
         Leaf
       )
     )
-    (Node Black 17
+    (Node Red 17
       (Node Black 15
         Leaf
         Leaf
@@ -125,10 +125,12 @@ rebalance t = t
 
 -- 5. Schrijf een functie balancedInsert die eerst een element toevoegt
 -- aan een boom, en vervolgens de rood-zwart eigenschap herstelt.
+rebalanceTree :: RBTree -> RBTree
+rebalanceTree (Leaf) = Leaf
+rebalanceTree t = let (Node c n t1 t2) = rebalance t
+                  in Node c n (rebalance t1) (rebalance t2)
 
 balancedInsert :: RBTree -> Number -> RBTree
-balancedInsert t a
-  = rebalance' (insert t a)
-  where
-    rebalance' t = rebalance t
+balancedInsert t a = rebalanceTree (insert t a)
+
 
