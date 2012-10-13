@@ -77,6 +77,9 @@ rootToBlack t = t
 -- functie colourFlip die de zwarte root N rood maakt, en de rode
 -- roots A en B van de twee subbomen zwart. Node C blijft dus rood.
 
+-- Merk op dat er nu opnieuw een probleem kan ontstaan omdat de parent
+-- van N ook rood kan zijn.
+
 --     N (Black)                N (Red)
 --      /   \                  /     \
 --     /     \                /       \
@@ -96,9 +99,6 @@ colorFlip (Node Black n t1 t2@(Node Red na t2a t2b@(Node Red _ _ _)))
   = Node Red n t1 (Node Black na t2a t2b)
 colorFlip t = t
 
--- Merk op dat er nu opnieuw een probleem kan ontstaan omdat de parent
--- van N ook rood kan zijn.
-
 -- 4. Het derde geval is dat een zwarte root slechts één rood kind heeft,
 -- maar dat dit rode kind zelf ook weer een rood kind heeft. Schrijf
 -- een functie rebalance die de vier mogelijke situaties2 waarin dit
@@ -107,13 +107,28 @@ colorFlip t = t
 
 -- (Zie voorbeeld (b) in rbtrees.pdf)
 
+-- t1   = b
+-- t1a  = c
+-- n    = a
+-- n1   = b
+
 rebalance :: RBTree -> RBTree
-rebalance (Node Black n t1@(Node Red na t1a@(Node Red _ _ _) t1b) t2@(Node Black _ _ _))
-  = Node Black na t1a (Node Red n t1b t2)
-rebalance (Node Black n t1@(Node Red na t1a t1b@(Node Red _ _ _)) t2@(Node Black _ _ _))
-  = Node Black na t1a (Node Red n t1b t2)
-rebalance (Node Black n t1@(Node Black _ _ _) t2@(Node Red na t2a@(Node Red _ _ _) t2b))
-  = Node Black na (Node Red n t2b t1) t2a
-rebalance (Node Black n t1@(Node Black _ _ _) t2@(Node Red na t2a t2b@(Node Red _ _ _)))
-  = Node Black na (Node Red n t2b t1) t2a
+rebalance t@(Node Black n t1@(Node Red n1 t1a@(Node Red _ _ _) t1b) t2@(Node Black _ _ _))
+  = Node Black n1 t1a t
+rebalance t@(Node Black n t1@(Node Red _ t1a t1b@(Node Red _ _ _)) t2@(Node Black n2 _ _))
+  = Node Black n2 t1 t
+rebalance t@(Node Black n t1@(Node Black n1 _ _) t2@(Node Red _ t2a@(Node Red _ _ _) t2b))
+  = Node Black n1 t t2
+rebalance t@(Node Black n t1@(Node Black _ _ _) t2@(Node Red n2 t2a t2b@(Node Red _ _ _)))
+  = Node Black n2 t t2b
 rebalance t = t
+
+-- 5. Schrijf een functie balancedInsert die eerst een element toevoegt
+-- aan een boom, en vervolgens de rood-zwart eigenschap herstelt.
+
+balancedInsert :: RBTree -> Number -> RBTree
+balancedInsert t a
+  = rebalance' (insert t a)
+  where
+    rebalance' t = rebalance t
+
