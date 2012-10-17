@@ -125,13 +125,84 @@ rebalanceTree t = let (Node c n t1 t2) = rebalance t
 balancedInsert :: RBTree -> Number -> RBTree
 balancedInsert t a = rebalanceTree (insert t a)
 
+-- *RBTree> insert exampleTree 10
+
+-- Node Black 13
+--  (Node Red 8
+--    (Node Black 1
+--      (Leaf Black)
+--      (Node Red 6
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--    )
+--    (Node Black 11
+--      (Node Red 10
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--      (Leaf Black)
+--    )
+--  )
+--  (Node Red 17
+--    (Node Black 15
+--      (Leaf Black)
+--      (Leaf Black)
+--    )
+--    (Node Black 25
+--      (Node Red 22
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--      (Node Red 27
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--    )
+--  )
+
+-- *RBTree> balancedInsert exampleTree 10
+
+-- Node Black 13
+--  (Node Red 8
+--    (Node Black 1
+--      (Leaf Black)
+--      (Node Red 6
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--    )
+--    (Node Black 11
+--      (Node Red 10
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--      (Leaf Black)
+--    )
+--  )
+--  (Node Red 17
+--    (Node Black 15
+--      (Leaf Black)
+--      (Leaf Black)
+--    )
+--    (Node Black 25
+--      (Node Red 22
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--      (Node Red 27
+--        (Leaf Black)
+--        (Leaf Black)
+--      )
+--    )
+--  )
 
 -- 1. Schrijf een functie leftmostValue die het element in de meest linker in-
 -- terne node van een (sub)boom oplevert.
 
---leftmostValue :: RBTree -> Number
---leftmostValue (Node _ n Leaf _) = n
---leftmostValue (Node _ _ t1 _) = leftmostValue t1
+leftmostValue :: RBTree -> Number
+leftmostValue (Node _ n (Leaf _) _) = n
+leftmostValue (Node _ _ t1 _) = leftmostValue t1
 
 -- 2. Schrijf een functie removeLeftmostNode die de meest linker interne
 -- node van een (sub)boom verwijdert en op de vrijgekomen plaats de rechter
@@ -145,9 +216,10 @@ balancedInsert t a = rebalanceTree (insert t a)
 -- “eindnode” is (dus zelf alleen maar bladeren als subbomen heeft) kan dat
 -- niet en moet hij vervangen worden door een grijs blad.
 
---removeLeftmostNode :: RBTree -> RBTree
---removeLeftmostNode (Node _ n Leaf Leaf) = t2
---removeLeftmostNode (Node _ n Leaf t2) = t2
---removeLeftmostNode (Node c n t1 t2) = Node c n (removeLeftmostNode t1) t2
+removeLeftmostNode :: RBTree -> RBTree
+removeLeftmostNode (Node _ _ (Leaf _) (Leaf _)) = Leaf Gray
+removeLeftmostNode (Node _ _ (Leaf _) t2@(Node _ _ _ _)) = t2
+removeLeftmostNode (Node c n t1 t2) = Node c n (removeLeftmostNode t1) t2
+
 
 
