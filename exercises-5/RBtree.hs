@@ -221,5 +221,38 @@ removeLeftmostNode (Node _ _ (Leaf _) (Leaf _)) = Leaf Gray
 removeLeftmostNode (Node _ _ (Leaf _) t2@(Node _ _ _ _)) = t2
 removeLeftmostNode (Node c n t1 t2) = Node c n (removeLeftmostNode t1) t2
 
+-- 3. Schrijf een functie greyColourFlip die locaal subbomen met een grijze
+-- node omzet. Formuleer daartoe de vijf3 in het boek genoemde gevallen als
+-- patterns van uw boomtype.
+-- Hou bij de clauses in uw functiedefinitie de volgorde van de patterns
+-- in het boek aan, dan kunnen ze eventueel wat compacter worden geformuleerd.
+-- Vergeet niet de vijf symmetrische gevallen waarbij de grijze node in de
+-- rechter subboom zit.
+
+grayColorFlip :: RBTree -> RBTree
+grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Black sv l@(Leaf Black) r@(Leaf Black)))
+  = Node Gray pv (Leaf Black) (Node Red sv l r)
+grayColorFlip p@(Node Black pv s@(Node Black sv l@(Leaf Black) r@(Leaf Black)) g@(Leaf Gray))
+  = Node Gray pv (Node Red sv l r) (Leaf Black)
+
+grayColorFlip p@(Node pc pv g@(Leaf Gray) s@(Node Black sv l@(Node Red lv a@(Leaf Black) b@(Leaf Black)) r@(Leaf rc)))
+  = Node pc lv (Node Black pv (Leaf Black) (Leaf Black)) (Node Black sv (Leaf Black) (Leaf rc))
+grayColorFlip p@(Node pc pv s@(Node Black sv l@(Node Red lv a@(Leaf Black) b@(Leaf Black)) r@(Leaf rc)) g@(Leaf Gray))
+  = Node pc lv (Node Black sv (Leaf Black) (Leaf rc)) (Node Black pv (Leaf Black) (Leaf Black))
+
+grayColorFlip p@(Node Red pv g@(Leaf Gray) s@(Node Black sv l@(Leaf Black) r@(Leaf _)))
+  = Node Black sv (Node Red pv (Leaf Black) (Leaf Black)) r
+grayColorFlip p@(Node Red pv s@(Node Black sv l@(Leaf Black) r@(Leaf _)) g@(Leaf Gray))
+  = Node Black sv r (Node Red pv (Leaf Black) (Leaf Black))
+
+grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Black sv l@(Leaf Black) r@(Leaf Red)))
+  = Node Black sv (Node Black pv (Leaf Black) (Leaf Black)) (Leaf Black)
+grayColorFlip p@(Node Black pv s@(Node Black sv l@(Leaf Black) r@(Leaf Red)) g@(Leaf Gray))
+  = Node Black sv (Leaf Black) (Node Black pv (Leaf Black) (Leaf Black))
+
+grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Red sv l@(Leaf Black) r@(Leaf Black)))
+  = Node Black sv (Node Red pv g l) r
+grayColorFlip p@(Node Black pv s@(Node Red sv l@(Leaf Black) r@(Leaf Black)) g@(Leaf Gray) )
+  = Node Black sv r (Node Red pv g l)
 
 
