@@ -3,8 +3,8 @@ module RBTree where
 import Data.Char
 import FPPrac.Prelude
 
-data Color = Red | Black deriving (Show, Eq)
-data RBTree = Leaf | Node Color Number RBTree RBTree deriving (Show, Eq)
+data Color = Red | Black | Gray deriving (Show, Eq)
+data RBTree = Leaf Color | Node Color Number RBTree RBTree deriving (Show, Eq)
 
 -- 1. Schrijf een functie insert die het eigenlijke inserten voor
 -- zijn rekening neemt zonder te letten op de rood-zwart eigenschap.
@@ -13,7 +13,7 @@ data RBTree = Leaf | Node Color Number RBTree RBTree deriving (Show, Eq)
 -- in de boom.
 
 insert :: RBTree -> Number -> RBTree
-insert (Leaf) a = Node Red a Leaf Leaf
+insert (Leaf _) a = Node Red a (Leaf Black) (Leaf Black)
 insert (Node c n t1 t2) a
   | a > n
   = Node c n t1 (insert t2 a)
@@ -25,30 +25,30 @@ exampleTree =
   (Node Black 13
     (Node Red 8
       (Node Black 1
-        Leaf
+        (Leaf Black)
         (Node Red 6
-          Leaf
-          Leaf
+          (Leaf Black)
+          (Leaf Black)
         )
       )
       (Node Black 11
-        Leaf
-        Leaf
+        (Leaf Black)
+        (Leaf Black)
       )
     )
     (Node Red 17
       (Node Black 15
-        Leaf
-        Leaf
+        (Leaf Black)
+        (Leaf Black)
       )
       (Node Black 25
         (Node Red 22
-          Leaf
-          Leaf
+          (Leaf Black)
+          (Leaf Black)
         )
         (Node Red 27
-          Leaf
-          Leaf
+          (Leaf Black)
+          (Leaf Black)
         )
       )
     )
@@ -80,23 +80,15 @@ rootToBlack t = t
 -- Merk op dat er nu opnieuw een probleem kan ontstaan omdat de parent
 -- van N ook rood kan zijn.
 
---     N (Black)                N (Red)
---      /   \                  /     \
---     /     \                /       \
---    A (Red) B (Red)        A (Black) B (Black)
---   /         \            /           \
---  *           C (Red)    *             C (Red)
---
-
 colorFlip :: RBTree -> RBTree
-colorFlip (Node Black n t1@(Node Red na t1a@(Node Red _ _ _) t1b) t2)
-  = Node Red n (Node Black na t1a t1b) t2
-colorFlip (Node Black n t1@(Node Red na t1a t1b@(Node Red _ _ _)) t2)
-  = Node Red n (Node Black na t1a t1b) t2
-colorFlip (Node Black n t1 t2@(Node Red na t2a@(Node Red _ _ _) t2b))
-  = Node Red n t1 (Node Black na t2a t2b)
-colorFlip (Node Black n t1 t2@(Node Red na t2a t2b@(Node Red _ _ _)))
-  = Node Red n t1 (Node Black na t2a t2b)
+colorFlip (Node Black v1 (Node Red v2 t4@(Node Red _ _ _) t5) (Node Red v3 t6 t7))
+  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
+colorFlip (Node Black v1 (Node Red v2 t4 t5@(Node Red _ _ _)) (Node Red v3 t6 t7))
+  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
+colorFlip (Node Black v1 (Node Red v2 t4 t5) (Node Red v3 t6@(Node Red _ _ _) t7))
+  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
+colorFlip (Node Black v1 (Node Red v2 t4 t5) (Node Red v3 t6 t7@(Node Red _ _ _)))
+  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
 colorFlip t = t
 
 -- 4. Het derde geval is dat een zwarte root slechts één rood kind heeft,
@@ -113,91 +105,49 @@ colorFlip t = t
 -- n1   = b
 
 rebalance :: RBTree -> RBTree
-rebalance t@(Node Black n t1@(Node Red n1 t1a@(Node Red _ _ _) t1b) t2@(Node Black _ _ _))
-  = Node Black n1 t1a t
-rebalance t@(Node Black n t1@(Node Red _ t1a t1b@(Node Red _ _ _)) t2@(Node Black n2 _ _))
-  = Node Black n2 t1 t
-rebalance t@(Node Black n t1@(Node Black n1 _ _) t2@(Node Red _ t2a@(Node Red _ _ _) t2b))
-  = Node Black n1 t t2
-rebalance t@(Node Black n t1@(Node Black _ _ _) t2@(Node Red n2 t2a t2b@(Node Red _ _ _)))
-  = Node Black n2 t t2b
+rebalance (Node Black v1 t2@(Node Red v2 t4@(Node Red _ _ _) t5) t3)
+  = Node Black v2 t4 (Node Red v1 t5 t3)
+rebalance (Node Black v1 t2@(Node Red v2 t4 t5@(Node Red v5 t10 t11)) t3)
+  = Node Black v5 (Node Red v2 t4 t10) (Node Red v1 t11 t3)
+rebalance (Node Black v1 t2 t3@(Node Red v3 t6 t7@(Node Red _ _ _)))
+  = Node Black v3 (Node Red v1 t6 t2) t7
+rebalance (Node Black v1 t2 t3@(Node Red v3 t6@(Node Red v6 t12 t13) t7))
+  = Node Black v6 (Node Red v3 t7 t13) (Node Red v1 t12 t2)
 rebalance t = t
 
 -- 5. Schrijf een functie balancedInsert die eerst een element toevoegt
 -- aan een boom, en vervolgens de rood-zwart eigenschap herstelt.
 rebalanceTree :: RBTree -> RBTree
-rebalanceTree (Leaf) = Leaf
+rebalanceTree (Leaf c) = Leaf c
 rebalanceTree t = let (Node c n t1 t2) = rebalance t
-                  in Node c n (rebalance t1) (rebalance t2)
+                  in Node c n (rebalanceTree t1) (rebalanceTree t2)
 
 balancedInsert :: RBTree -> Number -> RBTree
 balancedInsert t a = rebalanceTree (insert t a)
 
---Node Black 13
---  (Node Red 8
---    (Node Black 1
---      Leaf
---      (Node Red 6
---        (Node Red 4
---          Leaf
---          Leaf
---        ) 
---        Leaf
---      )
---    )
---    (Node Black 11
---      Leaf
---      Leaf
---    )
---  )
---  (Node Red 17
---    (Node Black 15
---      Leaf
---      Leaf)
---    (Node Black 25
---      (Node Red 22
---        Leaf
---        Leaf
---      )
---      (Node Red 27
---        Leaf
---        Leaf
---      )
---    )
---  )
 
---Node Black 13
---  (Node Red 8
---    (Node Black 1
---      Leaf
---      (Node Red 6
---        Leaf
---        Leaf
---      )
---    )
---    (Node Black 11
---      Leaf
---      Leaf
---    )
---  )
---  (Node Red 17
---    (Node Black 15
---      Leaf
---      Leaf
---    )
---    (Node Black 25
---      (Node Red 22
---        Leaf
---        Leaf
---      )
---      (Node Red 27
---        Leaf
---        Leaf
---      )
---    )
---  )
+-- 1. Schrijf een functie leftmostValue die het element in de meest linker in-
+-- terne node van een (sub)boom oplevert.
 
-leftmostValue :: RBTree -> Number
-leftmostValue (Node _ n Leaf _) = n
-leftmostValue (Node _ _ t1 _) = leftmostValue t1
+--leftmostValue :: RBTree -> Number
+--leftmostValue (Node _ n Leaf _) = n
+--leftmostValue (Node _ _ t1 _) = leftmostValue t1
+
+-- 2. Schrijf een functie removeLeftmostNode die de meest linker interne
+-- node van een (sub)boom verwijdert en op de vrijgekomen plaats de rechter
+-- subboom van die node weer neerzet (merk op dat daardoor geen verdere
+-- informatie verloren gaat). Ga de mogelijke gevallen na, en bedenk dat
+-- bij RB-bomen die meest linker node altijd op de onderste regel (in de
+-- RB-weergave) staat.
+
+-- Bij het verwijderen kan de RB-eigenschap vaak direct gehandhaafd blij-
+-- ven. Alleen in het geval dat de te verwijderen leftmost node een zwarte
+-- “eindnode” is (dus zelf alleen maar bladeren als subbomen heeft) kan dat
+-- niet en moet hij vervangen worden door een grijs blad.
+
+--removeLeftmostNode :: RBTree -> RBTree
+--removeLeftmostNode (Node _ n Leaf Leaf) = t2
+--removeLeftmostNode (Node _ n Leaf t2) = t2
+--removeLeftmostNode (Node c n t1 t2) = Node c n (removeLeftmostNode t1) t2
+
 
