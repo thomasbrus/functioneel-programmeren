@@ -255,4 +255,40 @@ grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Red sv l@(Leaf Black) r@(Le
 grayColorFlip p@(Node Black pv s@(Node Red sv l@(Leaf Black) r@(Leaf Black)) g@(Leaf Gray) )
   = Node Black sv r (Node Red pv g l)
 
+grayColorFlip t = t
+
+-- 4. Schrijf een functie greyRebalance die een boom met een grijze node er in
+-- recursief doorloopt en de RB-eigenschap herstelt middels het aanroepen van de
+-- functie greyColourFlip.
+
+grayBalance :: RBTree -> RBTree
+grayBalance (Leaf c) = Leaf c
+grayBalance t = let (Node c n  t1 t2) = grayColorFlip t
+                in (Node c n (grayBalance t1) (grayBalance t2))
+
+-- 5. Schrijf een functie delete die een gegeven waarde uit een gegeven RB-
+-- boom verwijdert en de RB-eigenschap herstelt. Daartoe moet eerst de node
+-- met de te verwijderen waarde opgezocht worden, vervolgens moet de waarde
+-- van die node vervangen worden door de waarde van de leftmost interne node
+-- van zijn rechter subboom, en deze leftmost node moet ver- wijderd worden
+-- (merk op dat deze node de eerstvolgende waarde in de odre binnen de boom bevat).
+-- Tenslotte moet de RB-eigenschap worden hersteld.
+
+-- Opmerking: als de node met de te verwijderen waarde geen rechter sub-
+-- boom meer heeft (behalve een blad), dan zal die node meteen verwijderd moeten worden.
+
+delete :: RBTree -> Number -> RBTree
+delete (Leaf c) _ = Leaf c
+delete (Node c n t1 t2@(Leaf _)) n'
+  | n == n'   = Leaf Black
+  | otherwise = Node c n (delete t1 n') t2
+delete (Node c n t1 t2) n'
+  | n == n'   = Node c n'' t1 t2'
+  | otherwise = Node c n (delete t1 n') (delete t2 n')
+  where
+    n'' = leftmostValue t2
+    t2' = removeLeftmostNode t2
+
+balancedDelete :: RBTree -> Number -> RBTree
+balancedDelete t n = grayBalance (delete t n)
 
