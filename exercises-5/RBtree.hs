@@ -2,9 +2,37 @@ module RBTree where
 
 import Data.Char
 import FPPrac.Prelude
+import qualified FPPrac.Graphics as G
+import RBGraphics
 
 data Color = Red | Black | Gray deriving (Show, Eq)
 data RBTree = Leaf Color | Node Color Number RBTree RBTree deriving (Show, Eq)
+
+ppTree (Leaf c) = RBnode (ppC c) [] []
+ppTree (Node c n t1 t2) = RBnode (ppC c) (show n) [ppTree t1,ppTree t2]
+
+ppC Red   = G.red
+ppC Black = G.black
+ppC Gray  = G.dark G.white
+
+isRed :: RBTree -> Bool
+isRed (Node Red _ _ _) = True
+isRed (Leaf Red) = True
+isRed _ = False
+
+isGray :: RBTree -> Bool
+isGray (Node Gray _ _ _) = True
+isGray (Leaf Gray) = True
+isGray _ = False
+
+isBlack :: RBTree -> Bool
+isBlack (Node Black _ _ _) = True
+isBlack (Leaf Black) = True
+isBlack _ = False
+
+makeBlack :: RBTree -> RBTree
+makeBlack (Node _ n t1 t2) = Node Black n t1 t2
+makeBlack (Leaf _) = Leaf Black
 
 -- 1. Schrijf een functie insert die het eigenlijke inserten voor
 -- zijn rekening neemt zonder te letten op de rood-zwart eigenschap.
@@ -67,8 +95,9 @@ exampleTree =
 -- root simpelweg weer zwart maakt.
 
 rootToBlack :: RBTree -> RBTree
-rootToBlack (Node Red n t1@(Node Red _ _ _) t2) = Node Black n t1 t2
-rootToBlack (Node Red n t1 t2@(Node Red _ _ _)) = Node Black n t1 t2
+rootToBlack t@(Node Red n t1 t2)
+  | isRed t1 || isRed t2 = Node Black n t1 t2
+  | otherwise            = t
 rootToBlack t = t
 
 -- 3. In het tweede geval hebben de twee subbomen A en B van een
@@ -81,14 +110,12 @@ rootToBlack t = t
 -- van N ook rood kan zijn.
 
 colorFlip :: RBTree -> RBTree
-colorFlip (Node Black v1 (Node Red v2 t4@(Node Red _ _ _) t5) (Node Red v3 t6 t7))
+
+colorFlip t@(Node Black v1 (Node Red v2 t4 t5) (Node Red v3 t6 t7))
+  | any isRed [t4, t5, t6, t7]
   = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
-colorFlip (Node Black v1 (Node Red v2 t4 t5@(Node Red _ _ _)) (Node Red v3 t6 t7))
-  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
-colorFlip (Node Black v1 (Node Red v2 t4 t5) (Node Red v3 t6@(Node Red _ _ _) t7))
-  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
-colorFlip (Node Black v1 (Node Red v2 t4 t5) (Node Red v3 t6 t7@(Node Red _ _ _)))
-  = Node Red v1 (Node Black v2 t4 t5) (Node Black v3 t6 t7)
+  | otherwise
+  = t
 colorFlip t = t
 
 -- 4. Het derde geval is dat een zwarte root slechts één rood kind heeft,
@@ -119,11 +146,11 @@ rebalance t = t
 -- aan een boom, en vervolgens de rood-zwart eigenschap herstelt.
 rebalanceTree :: RBTree -> RBTree
 rebalanceTree (Leaf c) = Leaf c
-rebalanceTree t = let (Node c n t1 t2) = rebalance t
+rebalanceTree t = let (Node c n t1 t2) = (rebalance . colorFlip) t
                   in Node c n (rebalanceTree t1) (rebalanceTree t2)
 
 balancedInsert :: RBTree -> Number -> RBTree
-balancedInsert t a = rebalanceTree (insert t a)
+balancedInsert t a = rootToBlack $ rebalanceTree (insert t a)
 
 -- *RBTree> insert exampleTree 10
 
@@ -230,30 +257,62 @@ removeLeftmostNode (Node c n t1 t2) = Node c n (removeLeftmostNode t1) t2
 -- rechter subboom zit.
 
 grayColorFlip :: RBTree -> RBTree
-grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Black sv l@(Leaf Black) r@(Leaf Black)))
-  = Node Gray pv (Leaf Black) (Node Red sv l r)
-grayColorFlip p@(Node Black pv s@(Node Black sv l@(Leaf Black) r@(Leaf Black)) g@(Leaf Gray))
-  = Node Gray pv (Node Red sv l r) (Leaf Black)
+-- Eerste en vierde geval
+grayColorFlip p@(Node Black pv g s@(Node Black sv l r))
+  | isGray g && isBlack l && isBlack r
+  = Node Gray pv (makeBlack g) (Node Red sv l r)
+  | isGray g && isBlack l && isRed r
+  = Node Black sv (Node Black pv (makeBlack g) l) (makeBlack r)
+  | otherwise = p
+-- Gespiegelde versie
+grayColorFlip p@(Node Black pv s@(Node Black sv r l) g)
+  | isGray g && isBlack l && isBlack r
+  = Node Gray pv (Node Red sv r l) (makeBlack g)
+  | isGray g && isBlack l && isRed r
+  = Node Black sv (makeBlack r) (Node Black pv l (makeBlack g))
+  | otherwise = p
 
-grayColorFlip p@(Node pc pv g@(Leaf Gray) s@(Node Black sv l@(Node Red lv a@(Leaf Black) b@(Leaf Black)) r@(Leaf rc)))
-  = Node pc lv (Node Black pv (Leaf Black) (Leaf Black)) (Node Black sv (Leaf Black) (Leaf rc))
-grayColorFlip p@(Node pc pv s@(Node Black sv l@(Node Red lv a@(Leaf Black) b@(Leaf Black)) r@(Leaf rc)) g@(Leaf Gray))
-  = Node pc lv (Node Black sv (Leaf Black) (Leaf rc)) (Node Black pv (Leaf Black) (Leaf Black))
+grayColorFlip p@(Node pc pv g s@(Node Black sv l@(Node Red lv a b) r))
+  | isGray g && isBlack a && isBlack b
+  -- Welke kleur moet deze node zijn?
+  = Node pc lv (Node Black pv (makeBlack g) a) (Node Black sv b r)
+  | otherwise = p
+-- Gespiegelde versie
+grayColorFlip p@(Node pc pv s@(Node Black sv r l@(Node Red lv b a)) g)
+  | isGray g && isBlack a && isBlack b
+  -- Welke kleur moet deze node zijn?
+  = Node pc lv (Node Black sv r b) (Node Black pv a (makeBlack g))
+  | otherwise = p
 
-grayColorFlip p@(Node Red pv g@(Leaf Gray) s@(Node Black sv l@(Leaf Black) r@(Leaf _)))
-  = Node Black sv (Node Red pv (Leaf Black) (Leaf Black)) r
-grayColorFlip p@(Node Red pv s@(Node Black sv l@(Leaf Black) r@(Leaf _)) g@(Leaf Gray))
-  = Node Black sv r (Node Red pv (Leaf Black) (Leaf Black))
+grayColorFlip p@(Node Red pv g s@(Node Black sv l r))
+  | isGray g && isBlack l
+  = Node Black sv (Node Red pv (makeBlack g) l) r
+  | otherwise = p
+-- Gespiegelde versie
+grayColorFlip p@(Node Red pv s@(Node Black sv r l) g)
+  | isGray g && isBlack l
+  = Node Black sv r (Node Red pv l (makeBlack g))
+  | otherwise = p
 
-grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Black sv l@(Leaf Black) r@(Leaf Red)))
-  = Node Black sv (Node Black pv (Leaf Black) (Leaf Black)) (Leaf Black)
-grayColorFlip p@(Node Black pv s@(Node Black sv l@(Leaf Black) r@(Leaf Red)) g@(Leaf Gray))
-  = Node Black sv (Leaf Black) (Node Black pv (Leaf Black) (Leaf Black))
+-- Vierde geval
+--grayColorFlip p@(Node Black pv g s@(Node Black sv l r))
+--  | isGray g && isBlack l && isRed r
+--  = Node Black sv (Node Black pv (makeBlack g) l) (makeBlack r)
+--  | otherwise = p
+--grayColorFlip p@(Node Black pv s@(Node Black sv l r) g)
+--  | isGray g && isBlack l && isRed r
+--  = Node Black sv (Node Black pv (makeBlack g) l) (makeBlack r)
+--  | otherwise = p
 
-grayColorFlip p@(Node Black pv g@(Leaf Gray) s@(Node Red sv l@(Leaf Black) r@(Leaf Black)))
+grayColorFlip p@(Node Black pv g s@(Node Red sv l r))
+  | isGray g && isBlack l && isBlack r
   = Node Black sv (Node Red pv g l) r
-grayColorFlip p@(Node Black pv s@(Node Red sv l@(Leaf Black) r@(Leaf Black)) g@(Leaf Gray) )
-  = Node Black sv r (Node Red pv g l)
+  | otherwise = p
+-- Gespiegelde versie
+grayColorFlip p@(Node Black pv s@(Node Red sv r l) g)
+  | isGray g && isBlack l && isBlack r
+  = Node Black sv r (Node Red pv l g) 
+  | otherwise = p
 
 grayColorFlip t = t
 

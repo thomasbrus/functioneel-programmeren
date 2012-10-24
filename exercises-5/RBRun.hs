@@ -8,6 +8,8 @@ import FPPrac.Events
 import FPPrac.Graphics
 import RBGraphics
 import Prelude
+import RBTree hiding (exampleTree)
+import qualified RBTree as RBTree (exampleTree)
 
 -- ============= types ========================================================
 -- RBnode c v ts:   c=colour, v=value, ts=subtrees
@@ -17,8 +19,11 @@ data StateTp = StateTp { mode :: Bool
                        }
 
 initstate = StateTp { mode = False
-                    , rbts = [ exampleTree, exampleTree, exampleTree ]
+                    , rbts = [ ppTree insertedTree, ppTree deletedTree ]
                     }
+                    where
+                      insertedTree = foldl balancedInsert (Leaf Black) [1..10]
+                      deletedTree  = balancedDelete RBTree.exampleTree 17
 
 main = installEventHandler "RBrun" doE initstate (drawTrees m 200 ts) 25
    where
