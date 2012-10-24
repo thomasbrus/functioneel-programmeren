@@ -22,7 +22,8 @@ initstate = StateTp { mode = False
                     , rbts = [ ppTree insertedTree, ppTree deletedTree ]
                     }
                     where
-                      insertedTree = foldl balancedInsert (Leaf Black) [1..10]
+                      -- insertedTree = foldl balancedInsert (Leaf Black) [1..10]
+                      insertedTree = balancedInsert RBTree.exampleTree 14
                       deletedTree  = balancedDelete RBTree.exampleTree 17
 
 main = installEventHandler "RBrun" doE initstate (drawTrees m 200 ts) 25
